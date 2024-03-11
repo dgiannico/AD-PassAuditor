@@ -50,7 +50,7 @@ Windows Defender will not like this element, as well as any well-made EDR. So:
 
 # Usage
 
-1. Fill out domain.conf file reporting all the domains and related AD servers (targetName or address) you want to operate on. E.g.:
+1. Fill out _domain.conf_ file reporting all the domains and related AD servers (targetName or address) you want to operate on. E.g.:
    - _example:192.168.1.10_
    - _mydomain:itdomdg2398_
    - (If you don't want to use the extract option, you can leave the server field blank, like "_example:_")
