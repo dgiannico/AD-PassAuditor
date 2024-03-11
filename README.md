@@ -1,8 +1,8 @@
 # What is AD-PassAuditor?
 
-It extracts AD passwords using secretsdump (impacket), 
+It's an all-rounder ;) . It extracts AD passwords using secretsdump (impacket), 
 compares them with the haveibeenpwned database and outputs a csv as "uid,domain", 
-i.e. all users with compromised passwords
+i.e. all users with compromised passwords.
 
 # Prerequisites
 
@@ -16,7 +16,7 @@ Refer to https://github.com/HaveIBeenPwned/PwnedPasswordsDownloader:
 
 ## impacket
 
-Required to extract passwords from AD (N.B. obviously you need a domain admin account to perform this operation)
+Required to extract passwords from AD (N.B. obviously you need a **domain admin** account to perform this operation)
 
 Refer to:
 - https://github.com/fortra/impacket/tree/master/impacket
@@ -42,7 +42,7 @@ However, this requires the impacket library (You may have problems with antiviru
 
 Windows Defender will not like this element, as well as any well-made EDR. So:
 
-1. Disable real time protection before download secretsdump.py and impacket
+1. Disable **real time protection** before download secretsdump.py and impacket
 2. Add **exclusion** for these 2 path:
     - _path to secretsdump.py_ (E.g. C:\Users\you\Desktop\AD-PassAuditor\secretsdump.py)
     - _path to impacket_ (E.g. C:\Users\you\AppData\Local\Programs\Python\Python310\Lib\site-packages\impacket)
@@ -50,16 +50,21 @@ Windows Defender will not like this element, as well as any well-made EDR. So:
 
 # Usage
 
-1. Fill out _domain.conf_ file reporting all the domains and related AD servers (targetName or address) you want to operate on. E.g.:
-   - _example:192.168.1.10_
+1. Fill out **domain.conf** file reporting all the domains and related AD servers (targetName or address) you want to operate on. Examples:
+   - _example.com:192.168.1.10_
    - _mydomain:itdomdg2398_
    - (If you don't want to use the extract option, you can leave the server field blank, like "_example:_")
 2. For complete use from scratch, perform:
-   - `python AD-PassAuditor.py -u <yourADuser>`
-   - You will be asked for your password to proceed with the extraction of the specified domains
-   - Wait for the outcome. It could take a long time (even hours). Calculate that the pwnedpasswords_ntlm file currently weighs more than 30 GB, so it requires time both to download and for subsequent comparison. Extracting from domains can also take a long time depending on their size.
-3. You can specify a base directory with _-bD_, example: `python AD-PassAuditor.py compare -bD ./Audit_06-03-2024/`
-4. If you already have both the compromised passwords file and the directory containing all the extraction files, you can specify them and skip the extraction and download:
-   - `python AD-PassAuditor.py -iD <inputDirectory> -iP <inputPassFile>`
-   - Filenames must be: 'OutputHashes{domain}.ntds' for all domains
+   - `python AD-PassAuditor.py -u <yourADuser> -bd <baseDirectory>`
+   - The **baseDirectory** will contain all the subfolders that will be generated. Default is '.'
+   - You will be asked for your **password** to proceed with the extraction of the specified domains
+   - Wait for the outcome. It could take a **long time** (even hours). Calculate that the pwnedpasswords_ntlm file currently weighs more than 30 GB... So it requires time both to download and for subsequent comparison. Extracting from domains can also take a long time depending on their size.
+3. If you already have both the compromised passwords file and the directory containing all the extraction files, you can specify them and perform **only comparison**:
+   - `python AD-PassAuditor.py -dix <directoryInputExtraction> -ip <inputPassFile>`
+   - Filenames inside directory must be: 'OutputHashes-{domain}.ntds' for all domains
    - "domain" must match those specified in _domain.conf_
+3. You can choose to run only **individual parts**, examples:
+   - `python AD-PassAuditor.py extract -u admin -dox hashesDir`
+   - `python AD-PassAuditor.py download -op pwned_passwords`
+   - `python AD-PassAuditor.py format -bd Test -dix hashesDir -dof formatDir`
+   - `python AD-PassAuditor.py compare -bd Test -dif formatDir -ip pwned_passwords.txt -of results.csv`
