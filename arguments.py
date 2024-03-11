@@ -13,22 +13,24 @@ output_final_file = "OutputMatchAllDomains.csv"  # Final output file of all doma
 user = ""
 
 
-def check_isfile(path):
+def check_isfile(path, _base_dir):
+    path = _base_dir + '/' + path
     if os.path.isfile(path):
         return path
     else:
-        raise argparse.ArgumentTypeError(f"The specified filename does not exist: {base_dir + '/' + path}")
+        raise argparse.ArgumentTypeError(f"The specified filename does not exist: {path}")
 
 
-def check_isdir(path):
+def check_isdir(path, _base_dir):
+    path = _base_dir + '/' + path
     if os.path.isdir(path):
         return path
     else:
-        raise argparse.ArgumentTypeError(f"The specified directory does not exist: {base_dir + '/' + path}")
+        raise argparse.ArgumentTypeError(f"The specified directory does not exist: {path}")
 
 
 def add_baseDir_argument(parser):
-    parser.add_argument("-bd", "--baseDir", metavar="<dir>", type=check_isdir,
+    parser.add_argument("-bd", "--baseDir", metavar="<dir>",
                         help="You can specify the base directory for all subsequent operations. "
                              f"By default, it's '{base_dir}'")
 
@@ -51,22 +53,30 @@ def add_outputFilename_argument(parser):
 
 
 def add_inputPassFile_argument(parser):
-    parser.add_argument("-ip", "--inputPassFile", metavar="<filename>", type=check_isfile,
+    parser.add_argument("-ip", "--inputPassFile", metavar="<filename>",
                         help="You can specify the file to use for comparison. "
                              "If not specified, the download will start. "
-                             "The path is 'baseDir/inputPassFile'. "
-                             f"By default, it's baseDir/{pwned_passwords_file}")
+                             "The path is './inputPassFile'. "
+                             f"By default, it's ./{pwned_passwords_file}")
 
 
 def add_outputPassFile_argument(parser):
     parser.add_argument("-op", "--outputPassFile", metavar="<filename>",
-                        help="You can specify the output filename of the download. "
-                             "The path will be 'baseDir/outputPassFile'. "
-                             f"By default, it's baseDir/{pwned_passwords_file}")
+                        help="You can specify the output filename of the download (without extension). "
+                             "The path will be './outputPassFile.txt'. "
+                             f"By default, it's ./{pwned_passwords_file}")
+
+
+
+def add_overwrite_argument(parser):
+    parser.add_argument("-o", "--overwrite", action='store_true',
+                                 help="By default, if the output filename already exists, "
+                                      "it will not be overwritten by haveibeenpwned-downloader. "
+                                      "Use this option to overwrite it.")
 
 
 def add_directoryInputExtraction_argument(parser):
-    parser.add_argument("-dix", "--directoryInputExtraction", metavar="<dir>", type=check_isdir,
+    parser.add_argument("-dix", "--directoryInputExtraction", metavar="<dir>",
                         help="You can specify the directory name containing AD extraction. "
                              "The path is 'baseDir/directoryInputExtraction'. "
                              "Filenames inside must be: 'OutputHashes-{domain}.ntds' for all domains. "
@@ -82,7 +92,7 @@ def add_directoryOutputExtraction_argument(parser):
 
 
 def add_directoryInputFormat_argument(parser):
-    parser.add_argument("-dif", "--directoryInputFormat", metavar="<dir>", type=check_isdir,
+    parser.add_argument("-dif", "--directoryInputFormat", metavar="<dir>",
                         help="You can specify the directory name containing AD extraction formatted as uid:nthash. "
                              "The path is 'baseDir/directoryInputFormat'. "
                              "Filenames inside must be: 'FormattedOutputHashes-{domain}.txt' for all domains. "
@@ -111,7 +121,7 @@ def define_arguments():
         description='Extracts AD passwords using secretsdump (impacket), '
                     'compares them with the haveibeenpwned database and outputs '
                     'a csv as "uid,domain", i.e. all users with compromised passwords. '
-                    'IMPORTANT: Remember to fill in the "domains.conf" file before starting the tool',
+                    'IMPORTANT: Remember to fill in "./domains.conf" file before starting the tool',
         epilog='Remember: "With great power comes great responsibility..."', add_help=True)
 
     add_baseDir_argument(root_parser)  # -bd
@@ -122,6 +132,8 @@ def define_arguments():
     group = root_parser.add_mutually_exclusive_group()
     add_inputPassFile_argument(group)
     add_outputPassFile_argument(group)
+
+    add_overwrite_argument(root_parser)  # -o
 
     # Mutual exclusion: -dix, -dox
     group = root_parser.add_mutually_exclusive_group()
@@ -152,8 +164,9 @@ def define_arguments():
 
     # Subparser for the 'download' command
     download_parser = subparsers.add_parser("download", help="Download pwned passwords from haveibeenpwned")
-    add_baseDir_argument(download_parser)
     add_outputPassFile_argument(download_parser)
+    add_overwrite_argument(download_parser)
+
 
     # Subparser for the 'compare' command
     compare_parser = subparsers.add_parser("compare", help="Compare your hashes with pwned passwords and "
