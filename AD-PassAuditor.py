@@ -172,118 +172,77 @@ def join_all_files():
 
 
 if __name__ == '__main__':
-    root_parser = argparse.ArgumentParser(
-        prog='AD-PassAuditor',
-        description='Extracts AD passwords using secretsdump (impacket), '
-                    'compares them with the haveibeenpwned database and outputs '
-                    'a csv as "uid,domain", i.e. all users with compromised passwords. '
-                    'IMPORTANT: Remember to fill in the "domains.conf" file before starting the tool',
-        epilog='Remember: "With great power comes great responsibility..."', add_help=True)
-
-    add_baseDir_argument(root_parser)  # -bD
-    add_user_argument(root_parser)  # -u
-    add_outputFilename_argument(root_parser)  # -oF
-
-    # Mutual exclusion: -iP, -oP
-    group = root_parser.add_mutually_exclusive_group()
-    add_inputPassFile_argument(group)
-    add_outputPassFile_argument(group)
-
-    # Mutual exclusion: -dIX, -dOX
-    group = root_parser.add_mutually_exclusive_group()
-    add_directoryInputExtraction_argument(group)
-    add_directoryOutputExtraction_argument(group)
-
-    # Mutual exclusion: -dIF, -dOF
-    group = root_parser.add_mutually_exclusive_group()
-    add_directoryInputFormat_argument(group)
-    add_directoryOutputFormat_argument(group)
-
-    # Mutual exclusion: -dIC, -dOC
-    group = root_parser.add_mutually_exclusive_group()
-    add_directoryInputCompare_argument(group)
-    add_directoryOutputCompare_argument(group)
-
-    subparsers = root_parser.add_subparsers(title="subcommands", dest="subcommand",
-                                            description="You can choose to run only individual parts")
-
-    # Subparser for the 'extract' command
-    extract_parser = subparsers.add_parser("extract", help="Extracts AD passwords using secretsdump")
-    add_baseDir_argument(extract_parser)
-    add_required_user_argument(extract_parser)
-    add_directoryOutputExtraction_argument(extract_parser)
-
-    # Subparser for the 'format' command
-    format_parser = subparsers.add_parser("format", help="Format extraction output as a list of uid:nthash")
-    add_baseDir_argument(format_parser)
-    add_directoryInputExtraction_argument(format_parser)
-    add_directoryOutputFormat_argument(format_parser)
-
-    # Subparser for the 'download' command
-    download_parser = subparsers.add_parser("download", help="Download pwned passwords from haveibeenpwned")
-    add_baseDir_argument(download_parser)
-    add_outputPassFile_argument(download_parser)
-
-    # Subparser for the 'compare' command
-    compare_parser = subparsers.add_parser("compare", help="Compare your hashes with pwned passwords and "
-                                                           "outputs a csv as with the results")
-    add_baseDir_argument(compare_parser)
-    # Mutual exclusion: -dIX, -dIF
-    group = compare_parser.add_mutually_exclusive_group()
-    add_directoryInputExtraction_argument(group)
-    add_directoryInputFormat_argument(group)
-    add_inputPassFile_argument(compare_parser)
-    add_outputFilename_argument(compare_parser)
-
+    root_parser = define_arguments()
     args = root_parser.parse_args()
+
+    # Parameters
+
+    subcommand = args.subcommand
+    bd = args.baseDir
+    _user = args.user
+    of = args.outputFilename
+    ip = args.inputPassFile
+    op = args.outputPassFile
+    dix = args.directoryInputExtraction
+    dox = args.directoryOutputExtraction
+    dif = args.directoryInputFormat
+    dof = args.directoryOutputFormat
+    doc = args.directoryOutputCompare
+
+    if bd:
+        base_dir = str(bd).strip('/\\')
+        print(f"\nBase dir: {base_dir}")
+    if _user:
+        user = _user
+        print(f"\nUser: {user}")
+    if of:
+        output_final_file = of
+        print(f"\nOutput final file: {output_final_file}")
+    if ip:
+        if subcommand == 'download':
+            root_parser.error("argument -ip not allowed with subcommand download")
+        pwned_passwords_file = str(ip).strip('/\\')
+        print(f"\nInput Pass file: {base_dir + '/' + pwned_passwords_file}")
+    if op:
+        pwned_passwords_file = str(op).strip('/\\')
+        print(f"\nOutput Pass file: {base_dir + '/' + pwned_passwords_file}")
+    if dix:
+        if subcommand == 'extract':
+            root_parser.error("argument -dix not allowed with subcommand extract")
+        if _user:
+            root_parser.error("argument -dix not allowed with argument -u/--user")
+        if dif:
+            root_parser.error("argument -dix not allowed with argument -dif/--directoryInputFormat")
+        extraction_ad_directory = str(dix).strip('/\\')
+        print(f"\nInput AD Directory: {base_dir + '/' + extraction_ad_directory}")
+    if dox:
+        extraction_ad_directory = str(dox).strip('/\\')
+        print(f"\nOutput AD Directory: {base_dir + '/' + extraction_ad_directory}")
+    if dif:
+        if subcommand == 'format':
+            root_parser.error("argument -dif not allowed with subcommand format")
+        formatted_directory = str(dif).strip('/\\')
+        print(f"\nInput Format Directory: {base_dir + '/' + formatted_directory}")
+    if dof:
+        formatted_directory = str(dof).strip('/\\')
+        print(f"\nOutput Format Directory: {base_dir + '/' + formatted_directory}")
+    if doc:
+        compare_directory = str(doc).strip('/\\')
+        print(f"\nOutput Compare Directory: {base_dir + '/' + compare_directory}")
 
     # Start script
     print("Start...")
     st = time.time()
 
     get_domains_from_conf()
-
-    # Parameters
-    subcommand = args.subcommand
-    bd = args.baseDir
-    _user = args.user
-    of = args.outputFilename
-    dix = args.directoryInputExtraction
-    dox = args.directoryOutputExtraction
-    dif = args.directoryInputFormat
-    dof = args.directoryOutputFormat
-    dic = args.directoryInputCompare
-    doc = args.directoryOutputCompare
-    ip = args.inputPassFile
-    op = args.outputPassFile
-
-    if bd:
-        if os.path.isdir(bd):
-            base_dir = str(bd).strip('/\\')
-            print(f"\nBase dir: {base_dir}")
-        else:
-            raise Exception(f"\nError: the specified baseDir is not a valid directory")
-
-    if dix:
-        if subcommand == 'extract':
-            root_parser.error("argument --dIX/--directoryInputExtraction: not allowed with subcommand extract")
-        if _user:
-            root_parser.error("argument --dIX/--directoryInputExtraction: not allowed with argument -u/--user")
-        if os.path.isdir(dix):
-            extraction_ad_directory = str(dix).strip('/\\')
-            print(f"\nInput AD Directory: {extraction_ad_directory}")
-        else:
-            raise Exception(f"\nError: the specified directoryExtraction is not a valid directory")
-
-    if (subcommand is None and dix is None) or subcommand == 'extract':
-        if _user is None:
+    if (subcommand is None and dix is None and dif is None) or subcommand == 'extract':
+        if not user:
             root_parser.error("the following arguments are required: -u/--user")
         else:
-            user = _user
             extract_all_hashes()
-    if subcommand is None or subcommand == 'format':
+    if (subcommand is None and dif is None) is None or subcommand == 'format':
         format_all_domain_files()
-    if subcommand is None or subcommand == 'download':
+    if (subcommand is None and ip is None) is None or subcommand == 'download':
         download_pwnedpasswords()
     if subcommand is None or subcommand == 'compare':
         compare_all_hashes()
