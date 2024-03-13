@@ -212,26 +212,34 @@ if __name__ == '__main__':
     doc = args.directoryOutputCompare
 
     if _user:
-        user = _user
+        user = str(_user).strip("'")
         print(f"\nUser: {user}")
     else:
         if (subcommand is None and dix is None and dif is None) or subcommand == 'extract':
             root_parser.error("the following arguments are required if -dix is not specified: -u/--user")
     if bd:
-        if os.path.isdir(bd):
-            base_dir = str(bd).strip('/\\')
-            print(f"\nBase dir: {base_dir}")
-        else:
-            raise argparse.ArgumentTypeError(f"The specified directory does not exist: {bd}")
+        create_dir(bd)
+        base_dir = str(bd).strip('/\\')
+        print(f"\nBase dir: {base_dir}")
     if of:
         output_final_file = of
         print(f"\nOutput final file: {output_final_file}")
-    if ip:
-        check_isfile(ip, '.')
+    if ip:  # list of filenames
         if subcommand == 'download':
             root_parser.error("argument -ip not allowed with subcommand download")
-        pwned_passwords_file = str(ip).strip('/\\')
-        print(f"\nInput Pass file: {'./' + pwned_passwords_file}")
+        if len(ip) == 1:
+            check_isfile(ip, '.')
+            pwned_passwords_file = str(ip).strip('/\\')
+            print(f"\nInput Pass file: {'./' + pwned_passwords_file}")
+        else:
+            new_filename = "pwnedpasswordsAppend.txt"
+            with open(new_filename, 'w', encoding="utf8") as output:  # create new file
+                for filename in ip:
+                    with open(filename, 'r', encoding="utf8") as f:  # append all specified files
+                        output.write(f.read())
+                        output.write('\n')
+            pwned_passwords_file = new_filename
+            print(f"\nInput Pass file: {'./' + new_filename}")
     if op:
         pwned_passwords_file = remove_ext(str(op).strip('/\\'))
         print(f"\nOutput Pass file: {'./' + pwned_passwords_file}")

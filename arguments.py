@@ -53,8 +53,9 @@ def add_outputFilename_argument(parser):
 
 
 def add_inputPassFile_argument(parser):
-    parser.add_argument("-ip", "--inputPassFile", metavar="<filename>",
+    parser.add_argument("-ip", "--inputPassFile", metavar="<filename>", nargs='+',
                         help="You can specify the file to use for comparison. "
+                             "You can provide more than one (separated by space). They will be concatenated. "
                              "If not specified, the download will start. "
                              "The path is './inputPassFile'. "
                              f"By default, it's ./{pwned_passwords_file}")
@@ -166,7 +167,6 @@ def define_arguments():
     download_parser = subparsers.add_parser("download", help="Download pwned passwords from haveibeenpwned")
     add_outputPassFile_argument(download_parser)
     add_overwrite_argument(download_parser)
-
 
     # Subparser for the 'compare' command
     compare_parser = subparsers.add_parser("compare", help="Compare your hashes with pwned passwords and "
