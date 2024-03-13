@@ -10,7 +10,7 @@ domains = {}  # Dict of domain:server to work on
 
 domains_conf_file = "domains.conf"
 path_to_secretsdump = "secretsdump.py"
-windows_command = f"python {path_to_secretsdump}"
+python_command = f"python {path_to_secretsdump}"
 linux_command = "impacket-secretsdump"
 
 
@@ -107,6 +107,7 @@ def extract_all_hashes():
     psw = getpass("\nPassword:")
 
     create_dir(extraction_ad_directory)
+    create_dir(log_dir)
     with concurrent.futures.ProcessPoolExecutor() as executor:  # Multiprocessing
         executor.map(extract_from_dc, domains, [psw for _ in range(len(domains))],
                      [base_dir for _ in range(len(domains))],
@@ -118,8 +119,16 @@ def extract_from_dc(domain, psw, _base_dir, _extraction_ad_directory):
     print(f"\nExtract from domain {domain}...")
 
     current_os = platform.system()
-    command = f"{linux_command if current_os == 'Linux' else windows_command} -just-dc-ntlm -outputfile " \
-              f"{_base_dir}/{_extraction_ad_directory}/OutputHashes-{domain} {domain}/{user}:{psw}@{domains[domain]}"
+    output_file = f"{_base_dir}/{_extraction_ad_directory}/OutputHashes-{domain}"
+    log_file = f"{_base_dir}/{log_dir}/{domain}-log.txt"
+    if current_os == "Linux":
+        command = (f"{linux_command} -just-dc-ntlm -outputfile "
+                   f"{output_file} {domain}/{user}:'{psw}'@{domains[domain]} "
+                   f"| tee {log_file}")
+    else:
+        command = (f"{python_command} -just-dc-ntlm -outputfile "
+                   f"{output_file} {domain}/{user}:'{psw}'@{domains[domain]} "
+                   f"> {log_file} | type {log_file}")
     os.system(command)
 
 

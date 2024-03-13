@@ -58,6 +58,7 @@ Windows Defender will not like this element, as well as any well-made EDR. So:
    - `python AD-PassAuditor.py -u <yourADuser> -bd <baseDirectory>`
    - The **baseDirectory** will contain all the subfolders that will be generated. Default is '.'
    - You will be asked for your **password** to proceed with the extraction of the specified domains
+   - Logs of the extractions from AD will be at _baseDir/ADLog_
    - Wait for the outcome. It could take a **long time** (even hours). Calculate that the pwnedpasswords_ntlm file currently weighs more than 30 GB... So it requires time both to download and for subsequent comparison. Extracting from domains can also take a long time depending on their size.
 3. If you already have both the compromised passwords file and the directory containing all the extraction files, you can specify them and perform **only comparison**:
    - `python AD-PassAuditor.py -dix <directoryInputExtraction> -ip <inputPassFile>`

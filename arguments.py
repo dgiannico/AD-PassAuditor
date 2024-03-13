@@ -3,6 +3,7 @@ import pathlib
 import argparse
 
 base_dir = "."
+log_dir = "ADLog"
 extraction_ad_directory = "OutputHashes"  # Directory of output files from secretsdump extractions
 formatted_directory = "FormattedOutputHashes"  # Directory of output files formatted as uid:hash
 compare_directory = "OutputCompare"  # Directory of output files from matching
@@ -152,7 +153,8 @@ def define_arguments():
                                             description="You can choose to run only individual parts")
 
     # Subparser for the 'extract' command
-    extract_parser = subparsers.add_parser("extract", help="Extracts AD passwords using secretsdump")
+    extract_parser = subparsers.add_parser("extract", help="Extracts AD passwords using secretsdump. "
+                                                           "Logs into directory ADLog")
     add_baseDir_argument(extract_parser)
     add_required_user_argument(extract_parser)
     add_directoryOutputExtraction_argument(extract_parser)
