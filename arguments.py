@@ -56,17 +56,19 @@ def add_outputFilename_argument(parser):
 def add_inputPassFile_argument(parser):
     parser.add_argument("-ip", "--inputPassFile", metavar="<filename>", nargs='+',
                         help="You can specify the file to use for comparison. "
-                             "You can provide more than one (separated by space). They will be concatenated. "
+                             "You can provide more than one (separated by space). "
+                             "Put the largest file first, the others will be concatenated to this one, "
+                             "renamed as 'pwnedpasswordsAppend.txt'. "
                              "If not specified, the download will start. "
                              "The path is './inputPassFile'. "
-                             f"By default, it's ./{pwned_passwords_file}")
+                             f"By default, it's {pwned_passwords_file}")
 
 
 def add_outputPassFile_argument(parser):
     parser.add_argument("-op", "--outputPassFile", metavar="<filename>",
                         help="You can specify the output filename of the download (without extension). "
                              "The path will be './outputPassFile.txt'. "
-                             f"By default, it's ./{pwned_passwords_file}")
+                             f"By default, it's {pwned_passwords_file}")
 
 
 

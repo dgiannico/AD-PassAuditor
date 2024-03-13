@@ -241,12 +241,14 @@ if __name__ == '__main__':
             pwned_passwords_file = str(ip).strip('/\\')
             print(f"\nInput Pass file: {'./' + pwned_passwords_file}")
         else:
+            print("\nJoining input pass files...")
             new_filename = "pwnedpasswordsAppend.txt"
-            with open(new_filename, 'w', encoding="utf8") as output:  # create new file
-                for filename in ip:
+            os.rename(ip[0], new_filename)
+            with open(new_filename, 'a', encoding="utf8") as output:  # create new file
+                for filename in ip[1:]:
                     with open(filename, 'r', encoding="utf8") as f:  # append all specified files
-                        output.write(f.read())
                         output.write('\n')
+                        output.write(f.read())
             pwned_passwords_file = new_filename
             print(f"\nInput Pass file: {'./' + new_filename}")
     if op:

@@ -64,8 +64,8 @@ Windows Defender will not like this element, as well as any well-made EDR. So:
    - `python AD-PassAuditor.py -dix <directoryInputExtraction> -ip <inputPassFile>`
    - Filenames inside directory must be: 'OutputHashes-{domain}.ntds' for all domains
    - "domain" must match those specified in _domain.conf_
-4. You can provide **multiple** (separated by space) pwned pass files. They will be concatenated in a file called "pwnedpasswordsAppend.txt":  `python AD-PassAuditor.py -dif <directoryInputFormat> -ip <inputPassFile1> <inputPassFile2>`
-3. You can choose to run only **individual parts**, examples:
+4. You can provide **multiple** (separated by space) pwned pass files. Put the largest file first, the others will be concatenated to this one, renamed as 'pwnedpasswordsAppend.txt':  `python AD-PassAuditor.py -dif <directoryInputFormat> -ip <inputPassFile1> <inputPassFile2>`
+5. You can choose to run only **individual parts**, examples:
    - `python AD-PassAuditor.py extract -u admin -dox hashesDir`
    - `python AD-PassAuditor.py download -op pwned_passwords`
    - `python AD-PassAuditor.py format -bd Test -dix hashesDir -dof formatDir`
