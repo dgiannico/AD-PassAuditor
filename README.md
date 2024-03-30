@@ -1,7 +1,7 @@
 # What is AD-PassAuditor?
 
 It's an all-rounder ;) . It extracts AD passwords using secretsdump (impacket), 
-compares them with the haveibeenpwned database and outputs a csv as "uid,domain", 
+compares them with the haveibeenpwned database and outputs a csv as "uid,domain,frequency", 
 i.e. all users with compromised passwords.
 
 # Prerequisites
