@@ -237,8 +237,8 @@ if __name__ == '__main__':
         if subcommand == 'download':
             root_parser.error("argument -ip not allowed with subcommand download")
         if len(ip) == 1:
-            check_isfile(ip, '.')
-            pwned_passwords_file = str(ip).strip('/\\')
+            check_isfile(ip[0], '.')
+            pwned_passwords_file = str(ip[0]).strip('/\\')
             print(f"\nInput Pass file: {'./' + pwned_passwords_file}")
         else:
             print("\nJoining input pass files...")
