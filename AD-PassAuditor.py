@@ -244,7 +244,7 @@ if __name__ == '__main__':
             print("\nJoining input pass files...")
             new_filename = "pwnedpasswordsAppend.txt"
             os.rename(ip[0], new_filename)
-            with open(new_filename, 'a', encoding="utf8") as output:  # create new file
+            with open(new_filename, 'a', encoding="utf8") as output:  # open first file
                 for filename in ip[1:]:
                     with open(filename, 'r', encoding="utf8") as f:  # append all specified files
                         output.write('\n')
