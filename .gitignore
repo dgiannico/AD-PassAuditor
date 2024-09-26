@@ -5,13 +5,9 @@ __pycache__/
 *.png
 *.txt
 *.conf
-Match-ADHashes.ps1
-old_Script_PowerShell_MatchAD.py
-06-03-2024
-13-03-2024
-19-06-2024
-26-09-2024
 session*
+Audits
+Misc
 
 # C extensions
 *.so

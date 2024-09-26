@@ -51,8 +51,8 @@ def compare_domain(domain, _base_dir, _formatted_directory, _compare_directory, 
 
     # Take our hashes as dictionary hash:[uid1, uid2, ...]
     our_hashes = dict()
-    with open(f"{_base_dir}/{_formatted_directory}/FormattedOutputHashes-{domain}.txt", 'r', encoding="utf8") as f:
-        for line in f:
+    with open(f"{_base_dir}/{_formatted_directory}/FormattedOutputHashes-{domain}.txt", 'r', encoding="utf8") as file:
+        for line in file:
             fields = line.strip().split(':')
             uid = fields[0]
             nthash = fields[1].upper()
@@ -63,31 +63,22 @@ def compare_domain(domain, _base_dir, _formatted_directory, _compare_directory, 
                 our_hashes[nthash] = [uid]
 
     # Compare
-    matches = dict()
-    with open(_pwned_passwords_file, 'r', encoding="utf8") as f:
-        for line in f:
-            fields = line.strip().split(':')
-            pwnedhash = fields[0]
-            frequency = fields[1]
-            uids = our_hashes.get(pwnedhash)
-            if uids:
-                for uid in uids:
-                    if uid in matches:
-                        matches[uid].append(frequency)
-                    else:
-                        matches[uid] = [frequency]
-
-    lines = []
-    for uid in matches:
-        line = f"{uid},{domain},"
-        for frequency in matches[uid]:
-            line += frequency + "; "
-        lines.append(line.strip('; ') + '\n')
-
-    # Write to file
-    with open(f"{_base_dir}/{_compare_directory}/OutputCompare-{domain}.txt", 'w', encoding="utf8") as output:
-        output.write("SamAccountName,Domain,Frequency\n")
-        output.writelines(lines)
+    with open(f"{_base_dir}/{_compare_directory}/OutputCompare-{domain}.txt", 'w', encoding="utf8") as output_file:
+        output_file.write("SamAccountName,Domain,Frequency\n")
+        output_file.flush()
+        findings = []
+        with open(_pwned_passwords_file, 'r', encoding="utf8") as file:
+            for line in file:
+                fields = line.strip().split(':')
+                pwnedhash = fields[0]
+                frequency = fields[1]
+                uids = our_hashes.get(pwnedhash)
+                if uids:    # finding
+                    for uid in uids:
+                        if uid not in findings:
+                            output_file.write(f"{uid},{domain},{frequency}\n")
+                            output_file.flush()
+                            findings.append(uid)
 
     print(f"\nComparing domain {domain} completed!")
 
