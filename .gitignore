@@ -2,6 +2,14 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.png
+*.txt
+domains.conf
+Match-ADHashes.ps1
+old_Script_PowerShell_MatchAD.py
+06-03-2024
+13-03-2024
+19-06-2024
 
 # C extensions
 *.so
@@ -120,6 +128,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.idea
 .env
 .venv
 env/
